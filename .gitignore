@@ -1,0 +1,11 @@
+Dokument/Seminararbeit.pdf
+*.aux
+*.toc
+*.gz
+*.out
+*.log
+*.bbl
+*.bcf
+*.blg
+*.dvi
+*.lof
