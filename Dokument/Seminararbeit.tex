@@ -103,7 +103,7 @@ Neben dem Speicher für Strukturen wie Instanzen und Arrays gibt es im Heap noch
 
 \section{Methodenaufrufe}
 \subsection{Ablauf eines Methodenaufrufs}
-Sobald eine Methode aufgerufen wird erzeugt die Java Virtual Machine ein neues Frame und legt dieses auf den Frame-Stack. Sofern es sich um eine Instanz-Methode handelt werden im Kontext der aufrufenden Methode und in dessen Frame die Objekt-Referenz und potenzielle Methodenargumente von dem Operanden-Stack genommen und in den Frame der aufgerufenen Methode übergeben (siehe Abbildung \ref{fig:aufrufMethode}). Dort sind die Werte im Array der lokalen Variablen zu finden, wobei die Objekt-Referenz an erster Stelle (Index 0) steht und darauf folgend die potenziellen Methoden-Argumente. 
+Für den Aufruf von Methoden werden im Bytecode verschiedene \textit{invoke} Funktionen genutzt die sich in ihrem Verhalten unterscheiden. Gemeinsam haben diese Opcodes jedoch dass sie als Operanden einen Index  im Runtime Constant Pool haben. Dieser Index wiederum verweist auf eine Methoden-Referenz über die dann der konkrete Methodencode ermittelt werden kann. Sobald eine Methode aufgerufen wird erzeugt die Java Virtual Machine ein neues Frame und legt dieses auf den Frame-Stack. Sofern es sich um eine Instanz-Methode handelt werden im Kontext der aufrufenden Methode und in dessen Frame die Objekt-Referenz und potenzielle Methodenargumente von dem Operanden-Stack genommen und in den Frame der aufgerufenen Methode übergeben (siehe Abbildung \ref{fig:aufrufMethode}). Dort sind die Werte im Array der lokalen Variablen zu finden, wobei die Objekt-Referenz an erster Stelle (Index 0) steht und darauf folgend die potenziellen Methoden-Argumente. 
 
 \begin{figure}[htbp] 
   \centering
@@ -114,15 +114,22 @@ Sobald eine Methode aufgerufen wird erzeugt die Java Virtual Machine ein neues F
 
 Falls es sich um den Aufruf einer Klassen-Methode handelt werden nur die Argumente vom Operanden-Stack genommen und das Array der lokalen Variablen in dem Frame der aufgerufenen Methode startet ab Index 0 mit den Methoden-Argumenten. Sobald die Argumente in dem Array vorhanden aktiviert die Java Virtual Machine das neu erzeugte Frame und setzt den Instruktionszeiger auf die erste Instruktion der neuen Methode.\cite{Venners.1997}
 
+\subsubsection{Dynamic linking}
+Die Java Virtual Machine nutzt dynamisches Linken. Wie bereits zuvor erwähnt haben die \textit{invoke} Opcodes eine Referenz im Runtime Constant Pool als Operanden. Die dort enthaltenen Verweise auf die Methode sind zu Beginn jedoch nur symbolisch (symbolische Referenzen). Ein solche symbolische Referenz ist eine Sammlung von Informationen welche unter anderem den Klassennamen, Methodennamen und Methoden-Deskriptor enthält. Der Methoden-Deskriptor enthält den Rückgabewert der Methode, sowie Anzahl und Typen der Methoden-Argumente). Wird nun eine Methode zur Laufzeit das erste Mal aufgerufen, muss die symbolische Referenz erst aufgelöst werden. Durch die Informationen in der Referenz kann die Java Virtual Machine nach der benötigten Methode suchen und anschließend die symbolische Referenz durch eine direkte Referenz ersetzen. Somit ist für einen weiteren Aufruf der Methode keine erneute Suche notwendig.\cite{Venners.1997}
+
+
 \subsection{Vergleich der Methodenaufrufe}
 In der Java Virtual Machine kann man zunächst die zuvor angesprochenen zwei Arten von Methoden unterscheiden: Instanz-Methoden und Klassen-Methoden (darunter werden auch die statischen-Methoden) gefasst. Sie unterscheiden sich zunächst darin ob für ihren Aufruf eine Instanz benötigt wird oder nicht. 
 
-Wie bereits zuvor erwähnt können Instanz-Methoden nur in ihrem Instanz-Kontext aufgerufen werden, wobei die aufgerufene Methode von der aktuellen Klasse der Instanz abhängt. Diese Information ist jedoch erst zur Laufzeit des Programms bekannt. Für die Lösung des Problems wird der Mechanismus des late bindings genutzt. Dabei wird beim Aufruf einer Methode der aktuelle Typ des Objekts ermittelt und dieser nach der Methode durchsucht. 
+Wie bereits zuvor erwähnt können Instanz-Methoden nur in ihrem Instanz-Kontext aufgerufen werden, wobei die aufgerufene Methode von der aktuellen Klasse der Instanz abhängt. Diese Information ist jedoch erst zur Laufzeit des Programms bekannt. Für die Lösung des Problems wird der Mechanismus des late bindings genutzt. Dabei wird beim Aufruf einer Methode der aktuelle Typ des Objekts ermittelt und dieser nach der Methode durchsucht. Die grobe Funktionsweise wurde in Abbildung \ref{fig:linkZurMethodenTabelle} erläutert. Dieser Mechanismus ist sehr ähnlich zu den \textit{Tabellen virtueller Methoden} in C++. Anhand des folgenden Beispiels wird die Funktionsweise von \verb|invokevirtual| verdeutlicht. Zudem wird gezeigt wie in der Java Virtual Machine mit Methodenüberladung und Methodenüberschreibung umgegangen werden kann.
+
+%ToDo: Beispiel Method Table, Vererbung (UML)
+
+
 
 Aufrufe von Klassen-Methoden hingegen basieren auf dem verwendeten Typ einer Referenz welcher sich auch während der Laufzeit nicht ändern. Somit kann bereits während der Komplierung die genutzte Methode bestimmt werden und es ist kein dynamisches Binden notwendig. Hierbei spricht man auch von static (early) binding. Der verwendete Opcode zum Aufruf von Klassen-Methoden ist \verb|invokestatic|. \cite{Venners.1997}
 
-\subsubsection{Dynamic linking}
-Die Java Virtual Machine nutzt dynamisches Linken. Einträge in den Runtime Constant Pools welche auf Methoden verweisen sollen sind somit zunächst nur symbolisch (symbolische Referenzen). Ein solche symbolische Referenz ist eine Sammlung von Informationen welche unter anderem den Klassennamen, Methodennamen und Methoden-Deskriptor enthält. Der Methoden-Deskriptor enthält den Rückgabewert der Methode, sowie Anzahl und Typen der Methoden-Argumente). Wird nun eine Methode zur Laufzeit das erste Mal aufgerufen, muss die symbolische Referenz erst aufgelöst werden. Durch die Informationen in der Referenz kann die Java Virtual Machine nach der benötigten Methode suchen und anschließend die symbolische Referenz durch eine direkte Referenz ersetzen. Somit ist für einen weiteren Aufruf der Methode keine erneute Suche notwendig.\cite{Venners.1997}
+
 
 \subsubsection{Instanz-Methoden}
 Neben dem zuvor erwähnten Opcode \verb|invokevirtual| zum Aufruf von Instanz-Methoden gibt es noch zwei weitere Varianten dieses Opcodes welche je nach Kontext verwendet werden. 
