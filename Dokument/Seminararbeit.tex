@@ -99,17 +99,24 @@ Sobald eine Methode aufgerufen wird erzeugt die Java Virtual Machine ein neues F
 Falls es sich um den Aufruf einer Klassen-Methode handelt werden nur die Argumente vom Operanden-Stack genommen und das Array der lokalen Variablen in dem Frame der aufgerufenen Methode startet ab Index 0 mit den Methoden-Argumenten. Sobald die Argumente in dem Array vorhanden aktiviert die Java Virtual Machine das neu erzeugte Frame und setzt den Instruktionszeiger auf die erste Instruktion der neuen Methode.\cite{Venners.1997}
 
 \subsection{Vergleich der Methodenaufrufe}
-In der Java Virtual Machine kann man zunächst die zuvor angesprochenen zwei Arten von Methoden unterscheiden: Instanz-Methoden und Klassen-Methoden (darunter werden auch die statischen-Methoden) gefasst. Sie unterscheiden sich zunächst darin ob für ihren Aufruf eine Instanz benötigt wird oder nicht. Wie bereits zuvor erwähnt können Instanz-Methoden nur in ihrem Instanz-Kontext aufgerufen werden, wobei die aufgerufene Methode von der aktuellen Klasse der Instanz abhängt. Diese Information ist jedoch erst zur Laufzeit des Programms bekannt. Für die Lösung des Problems wird der Mechanismus des late bindings genutzt welcher im Kapitel zu den Instanz-Methoden näher erläutert wird. Aufrufe von Klassen-Methoden hingegen basieren auf dem verwendeten Typ einer Referenz welcher sich auch während der Laufzeit nicht ändern. Somit kann bereits während der Komplierung die genutzte Methode bestimmt werden und es ist kein dynamisches Binden notwendig. Hierbei spricht man auch von static (early) binding.\cite{Venners.1997}
+In der Java Virtual Machine kann man zunächst die zuvor angesprochenen zwei Arten von Methoden unterscheiden: Instanz-Methoden und Klassen-Methoden (darunter werden auch die statischen-Methoden) gefasst. Sie unterscheiden sich zunächst darin ob für ihren Aufruf eine Instanz benötigt wird oder nicht. 
+
+Wie bereits zuvor erwähnt können Instanz-Methoden nur in ihrem Instanz-Kontext aufgerufen werden, wobei die aufgerufene Methode von der aktuellen Klasse der Instanz abhängt. Diese Information ist jedoch erst zur Laufzeit des Programms bekannt. Für die Lösung des Problems wird der Mechanismus des late bindings genutzt. Dabei wird beim Aufruf einer Methode zunächst der aktuelle Typ der Instanz nach der Methode durchsucht. Wird die Methode dort gefunden wird diese direkt aufgerufen. Sollte die Methode dort nicht vorhanden sein wird die vererbende Klasse untersucht. Dieses Vorgehen wiederholt sich bis die Methode in einer vererbenden Klasse gefunden wurde. Auf der Bytecode Ebene wird für den Aufruf von Instanz-Methoden der Opcode \verb|invokevirtual| verwendet.
+
+Aufrufe von Klassen-Methoden hingegen basieren auf dem verwendeten Typ einer Referenz welcher sich auch während der Laufzeit nicht ändern. Somit kann bereits während der Komplierung die genutzte Methode bestimmt werden und es ist kein dynamisches Binden notwendig. Hierbei spricht man auch von static (early) binding. Der verwendete Opcode zum Aufruf von Klassen-Methoden ist \verb|invokestatic|. \cite{Venners.1997}
 
 \subsubsection{Dynamic linking}
 Die Java Virtual Machine nutzt dynamisches Linken. Einträge in den Runtime Constant Pools welche auf Methoden verweisen sollen sind somit zunächst nur symbolisch (symbolische Referenzen). Ein solche symbolische Referenz ist eine Sammlung von Informationen welche unter anderem den Klassennamen, Methodennamen und Methoden-Deskriptor enthält. Der Methoden-Deskriptor enthält den Rückgabewert der Methode, sowie Anzahl und Typen der Methoden-Argumente). Wird nun eine Methode zur Laufzeit das erste Mal aufgerufen, muss die symbolische Referenz erst aufgelöst werden. Durch die Informationen in der Referenz kann die Java Virtual Machine nach der benötigten Methode suchen und anschließend die symbolische Referenz durch eine direkte Referenz ersetzen. Somit ist für einen weiteren Aufruf der Methode keine erneute Suche notwendig.\cite{Venners.1997}
 
-
-\subsubsection{Klassen-/Static-Methoden}
 \subsubsection{Instanz-Methoden}
-% Hier gibt es auf der Bytecode Ebene zunächst das invokevirtual
-% Virtual dispatch, prüft ob es in der Klasse des konkreten Typs eine solche Methode exisitiert. Ja? dann aufruf Nein? Dann prüfe die Elternklasse (wiederholt bis die Methode gefunden wurde) (= late binding!)
+Neben dem zuvor erwähnten Opcode \verb|invokevirtual| zum Aufruf von Instanz-Methoden gibt es noch zwei weitere Varianten dieses Opcodes welche je nach Kontext verwendet werden. 
 
+Der erste Opcode ist \verb|invokespecial| welcher in Situationen genutzt wird in denen es notwendig ist eine Instanz-Methode basierend auf dem Typ der Referenz (und nicht des Objekts) aufzurufen. In diesem Fall wird auch kein dynamisches Binden benötigt. Eine solche Situation ist zum Beispiel die Instanz-Initialisierung welche über die sogenannten Init-Methoden erfolgt. Diese Init-Methoden enthalten den Konstruktur-Code. Jede Klasse hat für jeden Konstruktur eine Init-Methode (wird kein Konstruktor explizit definiert wird eine Standard Init-Methode angelegt). Sobald eine neue Instanz angelegt wird findet der Aufruf einer der Init-Methode statt. Innerhalb dieser wird entlang der Vererbungshierarchie die Init-Methoden der jeweiligen vererbenden Klassen aufgerufen. Für diesen Aufruf ist die Verwendung von \verb|invokespecial| vorgesehen. Eine ähnliche Situation für die Verwendung des Opcode ist der Aufruf von überschriebenen Instanz-Methoden. Wird die Implementation der vererbenden Klasse mit dem Schlüsselwort \textit{super} aufgerufen, so findet der Aufruf im Bytecode ebenfalls mit \verb|invokespecial| statt.
+
+ 
+% ToDo: invokeinterface
+
+\cite{Venners.1997}
 
 \subsection{Beispielprogramm}
 
