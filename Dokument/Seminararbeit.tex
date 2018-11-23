@@ -8,9 +8,10 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
-    
+ 
     
 \begin{document}
 
@@ -86,6 +87,16 @@ Der Runtime Constant Pool ist wiederum ein Teil der Method Area welche sich im H
 
 \section{Methodenaufrufe}
 \subsection{Ablauf eines Methodenaufrufs}
+Sobald eine Methode aufgerufen wird erzeugt die Java Virtual Machine ein neues Frame und legt dieses auf den Frame-Stack. Sofern es sich um eine Instanz-Methode handelt werden im Kontext der aufrufenden Methode und in dessen Frame die Objekt-Referenz und potenzielle Methodenargumente von dem Operanden-Stack genommen und in den Frame der aufgerufenen Methode übergeben (siehe Abbildung \ref{fig:aufrufMethode}). Dort sind die Werte im Array der lokalen Variablen zu finden, wobei die Objekt-Referenz an erster Stelle (Index 0) steht und darauf folgend die potenziellen Methoden-Argumente. 
+
+\begin{figure}[htbp] 
+  \centering
+     \includegraphics[width=0.4\textwidth]{Grafiken/MethodenAufrufJVM.png}
+  \caption{Aufruf einer Instanz-Methode}
+  \label{fig:aufrufMethode}
+\end{figure}
+
+Falls es sich um den Aufruf einer Klassen-Methode handelt werden nur die Argumente vom Operanden-Stack genommen und das Array der lokalen Variablen in dem Frame der aufgerufenen Methode startet ab Index 0 mit den Methoden-Argumenten. Sobald die Argumente in dem Array vorhanden aktiviert die Java Virtual Machine das neu erzeugte Frame und setzt den Instruktionszeiger auf die erste Instruktion der neuen Methode. 
 
 \subsection{Vergleich der Methodenaufrufe}
 \subsubsection{Dynamic linking}
