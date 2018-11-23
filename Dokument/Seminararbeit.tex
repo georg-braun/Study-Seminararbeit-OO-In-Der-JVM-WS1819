@@ -121,17 +121,24 @@ Die Java Virtual Machine nutzt dynamisches Linken. Wie bereits zuvor erwähnt ha
 \subsection{Vergleich der Methodenaufrufe}
 In der Java Virtual Machine kann man zunächst die zuvor angesprochenen zwei Arten von Methoden unterscheiden: Instanz-Methoden und Klassen-Methoden (darunter werden auch die statischen-Methoden) gefasst. Sie unterscheiden sich zunächst darin ob für ihren Aufruf eine Instanz benötigt wird oder nicht. 
 
-Wie bereits zuvor erwähnt können Instanz-Methoden nur in ihrem Instanz-Kontext aufgerufen werden, wobei die aufgerufene Methode von der aktuellen Klasse der Instanz abhängt. Diese Information ist jedoch erst zur Laufzeit des Programms bekannt. Für die Lösung des Problems wird der Mechanismus des late bindings genutzt. Dabei wird beim Aufruf einer Methode der aktuelle Typ des Objekts ermittelt und dieser nach der Methode durchsucht. Die grobe Funktionsweise wurde in Abbildung \ref{fig:linkZurMethodenTabelle} erläutert. Dieser Mechanismus ist sehr ähnlich zu den \textit{Tabellen virtueller Methoden} in C++. Anhand des folgenden Beispiels wird die Funktionsweise von \verb|invokevirtual| verdeutlicht. Zudem wird gezeigt wie in der Java Virtual Machine mit Methodenüberladung und Methodenüberschreibung umgegangen werden kann.
-
-%ToDo: Beispiel Method Table, Vererbung (UML)
-
-
+Wie bereits zuvor erwähnt können Instanz-Methoden nur in ihrem Instanz-Kontext aufgerufen werden, wobei die aufgerufene Methode von der aktuellen Klasse der Instanz abhängt. Diese Information ist jedoch erst zur Laufzeit des Programms bekannt. Für die Lösung des Problems wird der Mechanismus des late bindings genutzt. Dabei wird beim Aufruf einer Methode der aktuelle Typ des Objekts ermittelt und dieser nach der Methode durchsucht. Die grobe Funktionsweise wurde in Abbildung \ref{fig:linkZurMethodenTabelle} erläutert. Dieser Mechanismus ist sehr ähnlich zu den \textit{Tabellen virtueller Methoden} in C++. Anhand des folgenden Beispiels wird die Funktionsweise von \verb|invokevirtual| verdeutlicht. Zudem wird gezeigt wie in der Java Virtual Machine mit Methodenüberladung und Methodenüberschreibung umgegangen werden kann. Angenommen es gibt das Klassenkonstrukt aus Abbildung \ref{fig:umlHierarchie} wobei die Klasse Student von der Klasse Mensch erbt und diese wiederum von der Basisklasse Object.
+\begin{figure}[htbp] 
+  \centering
+     \includegraphics[width=0.2\textwidth]{Grafiken/UMLHierarchie.png}
+  \caption{Klassenkonstrukt Beispiel}
+  \label{fig:umlHierarchie}
+\end{figure}
+Eine Methodentabelle für die Klasse Student könnte dann wie in Abbildung \ref{fig:methodenTabelleUmlHierachie} dargestellt aussehen. Dort sind die Methoden-Referenzen aufgelistet  welche für die Klasse Student zur Verfügung stehen. Jede Methode ist dabei einer bestimmten Position (Offset) zugeordnet. Die Reihenfolge der Methoden sind nach ihrem Vorkommen in der Vererbungshierarchie geordnet. Diese beginnt mit Methoden der Klasse Object und endet mit den Methoden der Klasse Student. Die gelb markierten Methoden weißen auch überschriebene Methoden hin. Wird zum Beispiel ein Methoden-Aufruf von \verb|toString| benötigt, so wird auf die Implementation in der Klasse \verb|Mensch| verwiesen und nicht auf die Standardimplementation der Klasse \verb|Object|. Somit wird deutlich wie überschriebene Methoden-Aufrufe realisiert werden. Auch überladene Methoden-Aufrufe sind möglich wie die Methode \verb|schlafenGehen| zeigt. Dieser Methodenname ist doppelt vorhanden, jedoch unterscheiden sich die Methoden in ihrer Signatur, sodass ein differenzierter Aufruf der Methode möglich ist.\cite{Venners.1999}
+\begin{figure}[htbp] 
+  \centering
+     \includegraphics[width=0.45\textwidth]{Grafiken/MethodenTabelleAusHierarchie.png}
+  \caption{Methodentabelle der Klasse Student}
+  \label{fig:methodenTabelleUmlHierachie}
+\end{figure}
 
 Aufrufe von Klassen-Methoden hingegen basieren auf dem verwendeten Typ einer Referenz welcher sich auch während der Laufzeit nicht ändern. Somit kann bereits während der Komplierung die genutzte Methode bestimmt werden und es ist kein dynamisches Binden notwendig. Hierbei spricht man auch von static (early) binding. Der verwendete Opcode zum Aufruf von Klassen-Methoden ist \verb|invokestatic|. \cite{Venners.1997}
 
-
-
-\subsubsection{Instanz-Methoden}
+\subsubsection{Spezialisierte Aufrufe}
 Neben dem zuvor erwähnten Opcode \verb|invokevirtual| zum Aufruf von Instanz-Methoden gibt es noch zwei weitere Varianten dieses Opcodes welche je nach Kontext verwendet werden. 
 
 Der erste Opcode ist \verb|invokespecial| welcher in Situationen genutzt wird in denen es notwendig ist eine Instanz-Methode basierend auf dem Typ der Referenz (und nicht des Objekts) aufzurufen. In diesem Fall wird auch kein dynamisches Binden benötigt. Eine solche Situation ist zum Beispiel die Instanz-Initialisierung welche über die sogenannten Init-Methoden erfolgt. Diese Init-Methoden enthalten den Konstruktur-Code. Jede Klasse hat für jeden Konstruktur eine Init-Methode (wird kein Konstruktor explizit definiert wird eine Standard Init-Methode angelegt). Sobald eine neue Instanz angelegt wird findet der Aufruf einer der Init-Methode statt. Innerhalb dieser wird entlang der Vererbungshierarchie die Init-Methoden der jeweiligen vererbenden Klassen aufgerufen. Für diesen Aufruf ist die Verwendung von \verb|invokespecial| vorgesehen. Eine ähnliche Situation für die Verwendung des Opcode ist der Aufruf von überschriebenen Instanz-Methoden. Wird die Implementation der vererbenden Klasse mit dem Schlüsselwort \textit{super} aufgerufen, so findet der Aufruf im Bytecode ebenfalls mit \verb|invokespecial| statt.
@@ -140,6 +147,9 @@ Der erste Opcode ist \verb|invokespecial| welcher in Situationen genutzt wird in
 Eine weitere Variante ist die Verwendung von \verb|invokeinterface|. Diese wird verwendet wenn die zugrundeliegende Referenz ein Interface ist. Ansonsten ist die Funktionsweise sehr ähnlich zu \verb|invokevirtual|. Wenn die Java Virtual Machine eine Klassen-Datei lädt wird (je nach der verwendeter Java Virtual Machine Implementation) eine Methoden-Tabelle für die Klasse erzeugt. Diese Tabelle enthält die direkten Referenzen zu den Bytecodes der Methoden welche bei einer Instanz dieser Klasse aufgerufen werden können. Die Tabelle beinhaltet dabei auch die Methoden der Oberklassen. Findet ein Methoden-Aufruf auf Basis einer Klassen-Referenz statt ist die Reihenfolge der Methodendefinitionen fix, sodass die Java Virtual Machine sich sicher sein an welcher Stelle (Offset) in der Tabelle die benötigte Methode steht. Die gleiche Methode kann aber gegebenenfalls auch über unterschiedliche Interfaces angesprochen werden wobei nicht unbedingt klar ist an welcher Position in der Methoden-Tabelle die Methode zu finden ist. Deshalb muss die Methode bei jedem Aufruf über ein Interface neu gesucht werden was wiederum einen gesonderten Aufruf mit dem Opcode \verb|invokeinterface| notwendig macht.\cite{Venners.1997}
 
 \subsection{Beispielprogramm}
+
+
+
 
 \section{Konstruktor}
 
