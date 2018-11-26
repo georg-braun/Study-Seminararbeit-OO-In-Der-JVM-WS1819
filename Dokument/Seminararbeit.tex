@@ -241,11 +241,49 @@ Zudem sind folgende Einträge im Constant-Pool zur Erstellung der Instanz releva
 #22 = NameAndType       #8:#9
 #23 = Utf8              com/company/Student
 \end{lstlisting}
-Der Operand \verb|new| hat den Index 2 im Constant-Pool als Operanden. Der dazugehörende Eintrag gibt mit dem Typ \verb|class| an, dass es sich um eine Klasseninformation handelt. Dieser Eintrag wiederum verweist auf Index 23 in dem als Utf8 codierter String der Klassenbezeichner (\verb|com/company/Student|) enthalten ist. Über das bereits vorgestellte dynamische Linken ist es nun möglich die Informationen zu dieser Klasse abzurufen. Der \verb|new| Opcode erzeugt somit die neue Instanz und legt auf dem Operanden Stack eine Referenz zu dieser ab. Der nächste logische Schritt wäre eigentlich der Aufruf der Initialisierungsmethode \verb|init|. Jedoch erwartet der Aufruf der \verb|init| mit dem \verb|invokespecial| Opcode eine Objekt-Referenz als Parameter auf dem Operanden-Stack. Dies ist in der aktuellen Situation auch der Fall, jedoch wird mit dem Aufruf auch der Parameter vom Operanden-Stack genommen und danach nicht wieder darauf gelegt. Um trotzdem nach dem Aufruf noch die Referenz zu dem erstellten Objekt zu haben wird diese nach der Erstellung mit \verb|new| zunächst dupliziert (\verb|dup|), sodass die gleiche Objekt-Referenz doppelt auf dem Operanden-Stack vorhanden ist. Somit kann die \verb|init| Methode aufgerufen werden, ohne dass die Referenz zu dem Objekt verloren geht. Der letzte Schritt ist die Sicherung der Objekt-Referenz an Index-Position 0 im Array der lokalen Variablen (\verb|astore_0|).
+Der Operand \verb|new| hat den Index 2 im Constant-Pool als Operanden. Der dazugehörende Eintrag gibt mit dem Typ \verb|class| an, dass es sich um eine Klasseninformation handelt. Dieser Eintrag wiederum verweist auf Index 23 in dem als Utf8 codierter String der Klassenbezeichner (\verb|com/company/Student|) enthalten ist. Über das bereits vorgestellte dynamische Linken ist es nun möglich die Informationen zu dieser Klasse abzurufen. Der \verb|new| Opcode erzeugt somit die neue Instanz im Heap und legt auf dem Operanden Stack eine Referenz zu dieser ab. Der nächste logische Schritt wäre eigentlich der Aufruf der Initialisierungsmethode \verb|init|. Jedoch erwartet der Aufruf der \verb|init| mit dem \verb|invokespecial| Opcode eine Objekt-Referenz als Parameter auf dem Operanden-Stack. Dies ist in der aktuellen Situation auch der Fall, jedoch wird mit dem Aufruf auch der Parameter vom Operanden-Stack genommen und danach nicht wieder darauf gelegt. Um trotzdem nach dem Aufruf noch die Referenz zu dem erstellten Objekt zu haben wird diese nach der Erstellung mit \verb|new| zunächst dupliziert (\verb|dup|), sodass die gleiche Objekt-Referenz doppelt auf dem Operanden-Stack vorhanden ist. Somit kann die \verb|init| Methode aufgerufen werden, ohne dass die Referenz zu dem Objekt verloren geht. Der letzte Schritt ist die Sicherung der Objekt-Referenz an Index-Position 0 im Array der lokalen Variablen (\verb|astore_0|).
 
 
 \section{Zugriff auf Felder}
 \subsection{Zugriff auf Objekt-Felder}
+Für den Zugriff auf Felder eines Objekts werden die Opcodes \verb|putfield| und \verb|getfield| verwendet. Die Funktionsweise der beiden Opcodes wird wieder an einem konkreten Beispiel gezeigt. Dazu werden die bereits zuvor verwendeten Klassen Mensch und Student um folgendes String-Feld ergänzt:
+\begin{lstlisting}
+public String Name;
+\end{lstlisting}
+Somit haben beide Klassen ein Feld mit der Bezeichnung \textit{Name}. Im folgenden wird auf das neue Feld lesend zugegriffen um den Inhalt in einer Variable zu sichern:
+\begin{lstlisting}
+Student sA = new Student();
+var x = sA.Name;
+\end{lstlisting}
+Der daraus resultierende Bytecode zum Zugriff auf das Feld und Teile des Constant-Pool sehen wie folgt aus:
+\begin{lstlisting}
+aload_0
+getfield      #4                  // Field com/company/Student.Name:Ljava/lang/String;
+astore_1
+
+#4 = Fieldref           #2.#27         
+#2 = Class              #26   
+#26 = Utf8              com/company/Student         
+#27 = NameAndType       #33:#21        
+#21 = Utf8              Ljava/lang/String;
+#33 = Utf8              Name
+\end{lstlisting}
+Zunächst wird die Referenz des Objekts (welche sich im nullten Index des Arrays der lokalen Variablen befindet) auf den Operanden-Stack gelegt damit eindeutig ist welches Objekt genutzt wird. Danach wird der \verb|getfield| Opcode gefolgt von dem Index 4 aufgerufen. Dieser Index enthält Informationen um welches Feld es sich handelt. Die Informationen werden über weitere Einträge aufgelöst bis letztendlich klar ist, dass auf das Feld \verb|Name| der Klasse \verb|Student| zugegriffen wird. Der ermittelte Wert der Instanz wird auf dem Operanden-Stack abgelegt und dann mit \verb|astore_1| in das Array der lokalen Variablen auf Indexposition 1 abgelegt. Die Indexposition entspricht der Variablen x im ursprünglichen Java-Programm.
+
+Ein schreibender Zugriff auf das Feld wird mit \verb|putfield| realisiert. Wird das Java-Programm um die Anweisung \verb|sA.Name = "Peter";| ergänzt, wird folgender Bytecode und Constant-Pool Eintrag ergänzt:
+\begin{lstlisting}
+aload_0
+ldc           #5
+putfield      #4
+
+#5 = String             #28
+#28 = Utf8              Peter
+\end{lstlisting}
+Wieder wird die Objekt-Referenz auf den Operanden-Stack gelegt. Mit dem Opcode \verb|ldc| und dem folgenden Index wird ein Wert aus dem Constant-Pool entnommen und auf den Operanden-Stack gelegt. In dem konkreten Beispiel wird der String \textit{Peter} auf dem Stack abgelegt. Somit befinden sich auf dem Operanden-Stack die Objekt-Referenz und der String als Parameter. Diese beiden Elemente werden durch den \verb|putfield| Opcode konsumiert. Die Vorgehensweise für den Feldzugriff ist identisch zum \verb|gefield| Beispiel. 
+
+Dieses Beispiel zeigt auch wie mit einer redundanten Feld Definition umgegangen wird. Sowohl die Mensch, als auch die Student Klasse wurden um das gleiche Feld ergänzt. Bei der Verwendung des Feld bei einer Studenten-Instanz wird jedoch nur das Feld der Student-Klasse berücksichtigt. Somit wird deutlich dass das Feld der vererbenden Klasse überdeckt wird. Zudem wird bei einem Feldzugriff nicht nur der Feldname verwendet, sondern auch der Klassenname berücksichtigt (siehe Feldauflösung im Beispiel). Das zeigt, dass es sich nicht um ein doppeltes, sondern um zwei eigenständige handelt. \cite{Venners.1996}
+
+
 \subsection{Zugriff auf Klassen-/Static-Felder}
 
 \section{Typüberprüfung}
