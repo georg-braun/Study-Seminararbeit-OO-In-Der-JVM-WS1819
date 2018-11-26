@@ -219,7 +219,7 @@ public class UnbeteiligteKlasse {
 
 
 \section{Konstruktor}
-In vielen Programmiersprachen werden neue Objekte mit dem Schlüsselwort \verb|new| erzeugt (Beispiel Java). Dieses Schlüsselwort gibt es auch als Opcode auf Bytecode-Ebene. Die \verb|new| Anweisung sorgt dafür dass zwar das Objekt angelegt wird, aber nicht dafür dass es auch initialisiert wird. Dafür sind die bereits vorgestellten \verb|init| Methoden verantwortlich. Anhand der Erzeugung einer Instanz der Klasse \verb|Student| (siehe Beispielprogramm) werden die einzelnen Schritte im Bytecode aufgezeigt.
+In vielen Programmiersprachen werden neue Objekte mit dem Schlüsselwort \verb|new| erzeugt (Beispiel Java). Dieses Schlüsselwort gibt es auch als Opcode auf Bytecode-Ebene. Die \verb|new| Anweisung sorgt dafür dass ein Objekt angelegt wird, aber nicht dafür dass es auch initialisiert wird. Dafür sind die bereits vorgestellten \verb|init| Methoden verantwortlich. Anhand der Erzeugung einer Instanz der Klasse \verb|Student| (siehe Beispielprogramm) werden die einzelnen Schritte im Bytecode aufgezeigt.
 
 Der in Java implementierte Aufruf
 \begin{lstlisting}
@@ -234,14 +234,14 @@ astore_0
 \end{lstlisting}
 Zudem sind folgende Einträge im Constant-Pool zur Erstellung der Instanz relevant:
 \begin{lstlisting}
-#2 = Class              #23
-#3 = Methodref          #2.#22
-#8 = Utf8               <init>
-#9 = Utf8               ()V
-#22 = NameAndType       #8:#9
-#23 = Utf8              com/company/Student
+#2 = Class          #23
+#3 = Methodref      #2.#22
+#8 = Utf8           <init>
+#9 = Utf8           ()V
+#22 = NameAndType   #8:#9
+#23 = Utf8          com/company/Student
 \end{lstlisting}
-Der Operand \verb|new| hat den Index 2 im Constant-Pool als Operanden. Der dazugehörende Eintrag gibt mit dem Typ \verb|class| an, dass es sich um eine Klasseninformation handelt. Dieser Eintrag wiederum verweist auf Index 23 in dem als Utf8 codierter String der Klassenbezeichner (\verb|com/company/Student|) enthalten ist. Über das bereits vorgestellte dynamische Linken ist es nun möglich die Informationen zu dieser Klasse abzurufen. Der \verb|new| Opcode erzeugt somit die neue Instanz im Heap und legt auf dem Operanden Stack eine Referenz zu dieser ab. Der nächste logische Schritt wäre eigentlich der Aufruf der Initialisierungsmethode \verb|init|. Jedoch erwartet der Aufruf der \verb|init| mit dem \verb|invokespecial| Opcode eine Objekt-Referenz als Parameter auf dem Operanden-Stack. Dies ist in der aktuellen Situation auch der Fall, jedoch wird mit dem Aufruf auch der Parameter vom Operanden-Stack genommen und danach nicht wieder darauf gelegt. Um trotzdem nach dem Aufruf noch die Referenz zu dem erstellten Objekt zu haben wird diese nach der Erstellung mit \verb|new| zunächst dupliziert (\verb|dup|), sodass die gleiche Objekt-Referenz doppelt auf dem Operanden-Stack vorhanden ist. Somit kann die \verb|init| Methode aufgerufen werden, ohne dass die Referenz zu dem Objekt verloren geht. Der letzte Schritt ist die Sicherung der Objekt-Referenz an Index-Position 0 im Array der lokalen Variablen (\verb|astore_0|).
+Der Opcode \verb|new| hat den Index 2 im Constant-Pool als Operanden. Der dazugehörende Eintrag gibt mit dem Typ \verb|Class| an, dass es sich um eine Klasseninformation handelt. Dieser Eintrag wiederum verweist auf Index 23 in dem als Utf8 codierter String der Klassenbezeichner (\verb|com/company/Student|) enthalten ist. Über das bereits vorgestellte dynamische Linken ist es nun möglich die Informationen zu dieser Klasse abzurufen. Der \verb|new| Opcode erzeugt somit die neue Instanz im Heap und legt auf dem Operanden Stack eine Referenz zu dieser ab. Der nächste logische Schritt wäre eigentlich der Aufruf der Initialisierungsmethode \verb|init|. Jedoch erwartet der Aufruf der \verb|init| Methode mit dem \verb|invokespecial| Opcode eine Objekt-Referenz als Parameter auf dem Operanden-Stack. Dies ist in der aktuellen Situation auch der Fall, jedoch wird mit dem Aufruf auch der Parameter vom Operanden-Stack genommen und danach nicht wieder zurückgelegt. Um trotzdem nach dem Aufruf noch die Referenz zu dem erstellten Objekt zu haben, wird die Referenz nach der Erstellung mit \verb|new| zunächst dupliziert (\verb|dup|). Als Resultat ist die gleiche Objekt-Referenz doppelt auf dem Operanden-Stack vorhanden. Somit kann die \verb|init| Methode aufgerufen werden, ohne dass die Referenz zu dem Objekt verloren geht. Der letzte Schritt ist die Sicherung der Objekt-Referenz an Index-Position 0 im Array der lokalen Variablen (\verb|astore_0|).
 
 
 \section{Zugriff auf Felder}
@@ -250,12 +250,12 @@ Für den Zugriff auf Felder eines Objekts werden die Opcodes \verb|putfield| und
 \begin{lstlisting}
 public String Name;
 \end{lstlisting}
-Somit haben beide Klassen ein Feld mit der Bezeichnung \textit{Name}. Im folgenden wird auf das neue Feld lesend zugegriffen um den Inhalt in einer Variable zu sichern:
+Somit haben beide Klassen ein Feld mit der Bezeichnung \textit{Name}. Im folgenden wird auf das neue Feld lesend zugegriffen um den Inhalt in einer Variablen zu sichern:
 \begin{lstlisting}
 Student sA = new Student();
 var x = sA.Name;
 \end{lstlisting}
-Der daraus resultierende Bytecode zum Zugriff auf das Feld und Teile des Constant-Pool sehen wie folgt aus:
+Der daraus resultierende Bytecode zum Zugriff auf das Feld und Teile des Constant-Pools sehen wie folgt aus:
 \begin{lstlisting}
 aload_0
 getfield      #4
@@ -268,9 +268,9 @@ astore_1
 #21 = Utf8          Ljava/lang/String;
 #33 = Utf8          Name
 \end{lstlisting}
-Zunächst wird die Referenz des Objekts (welche sich im nullten Index des Arrays der lokalen Variablen befindet) auf den Operanden-Stack gelegt damit eindeutig ist welches Objekt genutzt wird. Danach wird der \verb|getfield| Opcode gefolgt von dem Index 4 aufgerufen. Dieser Index enthält Informationen um welches Feld es sich handelt. Die Informationen werden über weitere Einträge aufgelöst bis letztendlich klar ist, dass auf das Feld \verb|Name| der Klasse \verb|Student| zugegriffen wird. Der ermittelte Wert der Instanz wird auf dem Operanden-Stack abgelegt und dann mit \verb|astore_1| in das Array der lokalen Variablen auf Indexposition 1 abgelegt. Die Indexposition entspricht der Variablen x im ursprünglichen Java-Programm.
+Zunächst wird die Referenz des Objekts (welche sich im nullten Index des Arrays der lokalen Variablen befindet) auf den Operanden-Stack gelegt damit eindeutig ist welches Objekt genutzt wird. Danach wird der \verb|getfield| Opcode gefolgt von dem Index 4 aufgerufen. Dieser Index enthält Informationen um welches Feld es sich handelt. Die Informationen werden über weitere Einträge aufgelöst bis letztendlich klar ist, dass auf das Feld \verb|Name| der Klasse \verb|Student| zugegriffen wird. Der ermittelte Wert der Instanz wird auf dem Operanden-Stack abgelegt und dann mit \verb|astore_1| in das Array der lokalen Variablen auf Indexposition 1 abgelegt. Die Indexposition entspricht der Variablen \verb|x| im ursprünglichen Java-Programm.
 
-Ein schreibender Zugriff auf das Feld wird mit \verb|putfield| realisiert. Wird das Java-Programm um die Anweisung \verb|sA.Name = "Peter"| ergänzt, wird folgender Bytecode und Constant-Pool Eintrag ergänzt:
+Ein schreibender Zugriff auf das Feld wird mit \verb|putfield| realisiert. Das Java-Programm wird um die Anweisung \verb|sA.Name = "Peter"| ergänzt, sodass folgender Bytecode und Constant-Pool Eintrag entsteht:
 \begin{lstlisting}
 aload_0
 ldc           #5
@@ -281,15 +281,15 @@ putfield      #4
 \end{lstlisting}
 Wieder wird die Objekt-Referenz auf den Operanden-Stack gelegt. Mit dem Opcode \verb|ldc| und dem folgenden Index wird ein Wert aus dem Constant-Pool entnommen und auf den Operanden-Stack gelegt. In dem konkreten Beispiel wird der String \textit{Peter} auf dem Stack abgelegt. Somit befinden sich auf dem Operanden-Stack die Objekt-Referenz und der String als Parameter. Diese beiden Elemente werden durch den \verb|putfield| Opcode konsumiert. Die Vorgehensweise für den Feldzugriff ist identisch zum \verb|gefield| Beispiel. 
 
-Dieses Beispiel zeigt auch wie mit einer redundanten Feld Definition umgegangen wird. Sowohl die Mensch, als auch die Student Klasse wurden um das gleiche Feld ergänzt. Bei der Verwendung des Feld bei einer Studenten-Instanz wird jedoch nur das Feld der Student-Klasse berücksichtigt. Somit wird deutlich dass das Feld der vererbenden Klasse überdeckt wird. Zudem wird bei einem Feldzugriff nicht nur der Feldname verwendet, sondern auch der Klassenname berücksichtigt (siehe Feldauflösung im Beispiel). Das zeigt, dass es sich nicht um ein doppeltes, sondern um zwei eigenständige handelt. \cite{Venners.1996}
+Dieses Beispiel zeigt auch wie mit einer redundanten Feld Definition umgegangen wird. Sowohl die Mensch-, als auch die Student-Klasse wurden um das gleiche Feld ergänzt. Bei der Verwendung des Feld bei einer Studenten-Instanz wird jedoch nur das Feld der Student-Klasse berücksichtigt. Somit wird deutlich, dass das Feld der vererbenden Klasse überdeckt wird. Zudem wird bei einem Feldzugriff nicht nur der Feldname, sondern auch der Klassenname verwendet (siehe Feldauflösung im Beispiel). Das zeigt, dass es sich nicht um ein doppeltes, sondern um zwei eigenständige Felder handelt. \cite{Venners.1996}
 
 
 \subsection{Zugriff auf Klassen-/Static-Felder}
-Die Funktionsweise für den Zugriff auf Klassen-Felder ist dem Zugriff auf Objekt-Felder sehr ähnlich. Der einzige Unterschied ist dass für einen lesenden Zugriff auf ein ein Klassen-Feld der Opcode \verb|getstatic|, beziehungsweise für einen schreibenden Zugriff \verb|putstatic| verwendet wird. Beide Opcode haben wieder einen Index als Operanden der auf einen Eintrag im Constant-Pool verweist. Im Gegensatz zu \verb|getfield| und \verb|putfield| wird aber keine Objekt-Referenz auf dem Operanden-Stack erwartet, da die Aufrufe unabhängig davon sind. Lediglich die Klasse und das verwendete Feld müssen über die Constant-Pool Einträge identifiziert werden.
+Die Funktionsweise für den Zugriff auf Klassen-Felder ist dem Zugriff auf Objekt-Felder sehr ähnlich. Der Hauptunterschied ist, dass für einen lesenden Zugriff auf ein Klassen-Feld der Opcode \verb|getstatic|, beziehungsweise für einen schreibenden Zugriff \verb|putstatic| verwendet wird. Beide Opcode haben wieder einen Index als Operanden der auf einen Eintrag im Constant-Pool verweist. Im Gegensatz zu \verb|getfield| und \verb|putfield| wird aber keine Objekt-Referenz auf dem Operanden-Stack erwartet, da die Aufrufe unabhängig von einem Objekt sind. Lediglich die Klasse und das verwendete Feld müssen über die Constant-Pool Einträge identifiziert werden.
 
 
 \section{Typüberprüfung}
-Sobald in der Programmierung ein Typecast erfolgt, wird im Bytecode der Opcode \verb|checkcast| ergänzt der diese Konvertierung überprüft. Diese Prüfung wird anhand der bereits bekannten Mensch, Studenten Klassenbeziehung gezeigt. Dabei wird eine Instanz der Klasse \verb|Mensch| erzeugt und ein Wert für das Feld \verb|Name| gesetzt. Die Methode \verb|sagDeinenNamen| erwartet hingegen ein Objekt des Typs Student als Parameter. Dazu wird eine Typ-Konvertierung in die Klasse Student hinzugefügt. Betrachtet man die Vererbungshierarchie, so wird deutlich dass dies keine gültige Typ-Konvertierung ist und es somit zu einem Laufzeitfehler kommen wird.
+Sobald in der Programmierung ein Typecast erfolgt, wird im Bytecode der Opcode \verb|checkcast| ergänzt, der diese Konvertierung überprüft. Diese Prüfung wird anhand der bereits bekannten Mensch-Studenten Klassenbeziehung gezeigt. Dabei wird eine Instanz der Klasse \verb|Mensch| erzeugt und ein Wert für das Feld \verb|Name| gesetzt. Die Methode \verb|sagDeinenNamen| erwartet hingegen ein Objekt des Typs Student als Parameter. Dazu wird eine Typ-Konvertierung in die Klasse Student hinzugefügt. Betrachtet man die Vererbungshierarchie so wird deutlich, dass dies keine gültige Typ-Konvertierung ist und es somit zu einem Laufzeitfehler kommen wird.
 \begin{lstlisting}
 public static void main() {
 	Mensch hM = new Mensch();
@@ -310,9 +310,9 @@ invokestatic  #7
 #7 = Methodref  ...
 #37 = Utf8      com/company/Student
 \end{lstlisting}
-Auf dem Operanden-Stack befindet sich die Objekt-Referenz zu der Mensch-Instanz. Vor dem Aufruf der Methode findet jedoch noch ein Aufruf des Opcodes \verb|checkcast| statt, der als Operand den Ziel-Typ (Student) der gewünschten Konvertierung enthält. Der Opcode prüft ob es sich um eine gültige Konvertierung handelt. Sollte die Typ-Konvertierung nicht erfolgreich erlaubt sein wird eine \verb|ClassCastException| erzeugt und der normale Programmfluss wird beendet. Bei einer Prüfung mit positiven Prüfung bleibt diese Exception aus und der Programmfluss fährt mit dem Methodenaufruf fort. Zu beachten gilt es dabei, dass der Opcode \verb|checkcast| die Objekt-Referenz auf dem Operanden-Stack nicht entfernt und ein direkter Methodenaufruf somit möglich ist.\cite{Venners.1996}
+Auf dem Operanden-Stack befindet sich die Objekt-Referenz zu der Mensch-Instanz (\verb|aload_0|). Vor dem Aufruf der Methode findet jedoch noch ein Aufruf des Opcodes \verb|checkcast| statt, der als Operand den Ziel-Typ (Student) der gewünschten Konvertierung enthält. Der Opcode prüft ob es sich um eine gültige Konvertierung handelt. Sollte die Typ-Konvertierung nicht erlaubt sein wird eine \verb|ClassCastException| erzeugt und der normale Programmfluss wird beendet. Bei einer Prüfung mit positiven Ergebnis bleibt diese Exception aus und der Programmfluss fährt mit dem Methodenaufruf fort. Zu beachten gilt es dabei, dass der Opcode \verb|checkcast| die Objekt-Referenz auf dem Operanden-Stack nicht entfernt und ein direkter Methodenaufruf somit möglich ist.\cite{Venners.1996}
 
-In vielen Programmiersprachen kann direkt auf die Übereinstimmung eines Typs mit der Anweisung \verb|instanceof| geprüft werden. Die gleiche Anweisung gibt es als Opcode im Bytecode. Dabei wird eine Objekt-Referenz vom Operanden-Stack genommen und gegen den gewünschten Typ geprüft. Das Ergebnis der Prüfung wird durch ein True oder False Element auf dem Operanden-Stack gekennzeichnet. \cite{Venners.1996}
+In vielen Programmiersprachen kann direkt auf die Übereinstimmung eines Typs mit der Anweisung \verb|instanceof| geprüft werden. Die gleiche Anweisung gibt es als Opcode im Bytecode. Dabei wird eine Objekt-Referenz vom Operanden-Stack genommen und gegen den gewünschten Typ geprüft. Das Ergebnis der Prüfung wird durch ein \verb|True| oder \verb|False| Element auf dem Operanden-Stack gekennzeichnet.\cite{Venners.1996}
 
 \bibliographystyle{ieeetr}
 \bibliography{literatur} 
