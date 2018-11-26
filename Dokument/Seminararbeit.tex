@@ -9,6 +9,7 @@
 \usepackage{xcolor}
 \usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
+\usepackage{listings} % Code
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
  
@@ -147,7 +148,74 @@ Der erste Opcode ist \verb|invokespecial| welcher in Situationen genutzt wird in
 Eine weitere Variante ist die Verwendung von \verb|invokeinterface|. Diese wird verwendet wenn die zugrundeliegende Referenz ein Interface ist. Ansonsten ist die Funktionsweise sehr ähnlich zu \verb|invokevirtual|. Wenn die Java Virtual Machine eine Klassen-Datei lädt wird (je nach der verwendeter Java Virtual Machine Implementation) eine Methoden-Tabelle für die Klasse erzeugt. Diese Tabelle enthält die direkten Referenzen zu den Bytecodes der Methoden welche bei einer Instanz dieser Klasse aufgerufen werden können. Die Tabelle beinhaltet dabei auch die Methoden der Oberklassen. Findet ein Methoden-Aufruf auf Basis einer Klassen-Referenz statt ist die Reihenfolge der Methodendefinitionen fix, sodass die Java Virtual Machine sich sicher sein an welcher Stelle (Offset) in der Tabelle die benötigte Methode steht. Die gleiche Methode kann aber gegebenenfalls auch über unterschiedliche Interfaces angesprochen werden wobei nicht unbedingt klar ist an welcher Position in der Methoden-Tabelle die Methode zu finden ist. Deshalb muss die Methode bei jedem Aufruf über ein Interface neu gesucht werden was wiederum einen gesonderten Aufruf mit dem Opcode \verb|invokeinterface| notwendig macht.\cite{Venners.1997}
 
 \subsection{Beispielprogramm}
+Im folgenden stelle ich ein an \cite{Venners.1997} angelehntes Beispiel vor, welches noch mal zusammenfassend die Verwendung der Bytecode Methoden-Aufrufe aufzeigt. In dem Beispiel wird eine Klassenstruktur erzeugt und verschiedene Methodenaufrufe werden ausgeführt. Neben den Methodenaufrufen sind die im Bytecode verwendeten \verb|invoke| Opcodes angegeben. 
 
+\begin{lstlisting}
+public interface InterfaceBeispiel {
+    void interfaceMethode();
+}
+
+
+public class Mensch 
+	implements InterfaceBeispiel {
+    
+    public Mensch(int i) {
+        // invokespecial
+        super();
+    }
+
+    static void klassenMethode() {}
+
+    public void instanzMethode() {}
+
+    public void interfaceMethode() {}
+}
+
+
+public class Student extends Mensch{
+    public Student() {
+    	// invokespecial
+        super(1);
+    }
+
+    private void privateMethode() {}
+
+    public void instanzMethode() {}
+
+    void beispielMethodenaurufe(){
+
+        // invokevirtual
+        instanzMethode();
+
+        // invokespecial
+        super.instanzMethode();
+
+        // invokevirtual
+        privateMethode();
+
+        // invokeinterface
+        interfaceMethode();
+    }
+}
+
+
+public class UnbeteiligteKlasse {
+
+    public static void main() {
+
+        // invokespecial
+        Student sA = new Student();
+
+        // invokevirtual
+        sA.instanzMethode();
+
+        InterfaceBeispiel ifAccess = sA;
+        
+        // invokeinterface
+        interfaceAccess.interfaceMethode();
+    }
+}
+\end{lstlisting}
 
 
 
