@@ -258,19 +258,19 @@ var x = sA.Name;
 Der daraus resultierende Bytecode zum Zugriff auf das Feld und Teile des Constant-Pool sehen wie folgt aus:
 \begin{lstlisting}
 aload_0
-getfield      #4                  // Field com/company/Student.Name:Ljava/lang/String;
+getfield      #4
 astore_1
 
-#4 = Fieldref           #2.#27         
-#2 = Class              #26   
-#26 = Utf8              com/company/Student         
-#27 = NameAndType       #33:#21        
-#21 = Utf8              Ljava/lang/String;
-#33 = Utf8              Name
+#4 = Fieldref       #2.#27         
+#2 = Class          #26   
+#26 = Utf8          com/company/Student         
+#27 = NameAndType   #33:#21        
+#21 = Utf8          Ljava/lang/String;
+#33 = Utf8          Name
 \end{lstlisting}
 Zunächst wird die Referenz des Objekts (welche sich im nullten Index des Arrays der lokalen Variablen befindet) auf den Operanden-Stack gelegt damit eindeutig ist welches Objekt genutzt wird. Danach wird der \verb|getfield| Opcode gefolgt von dem Index 4 aufgerufen. Dieser Index enthält Informationen um welches Feld es sich handelt. Die Informationen werden über weitere Einträge aufgelöst bis letztendlich klar ist, dass auf das Feld \verb|Name| der Klasse \verb|Student| zugegriffen wird. Der ermittelte Wert der Instanz wird auf dem Operanden-Stack abgelegt und dann mit \verb|astore_1| in das Array der lokalen Variablen auf Indexposition 1 abgelegt. Die Indexposition entspricht der Variablen x im ursprünglichen Java-Programm.
 
-Ein schreibender Zugriff auf das Feld wird mit \verb|putfield| realisiert. Wird das Java-Programm um die Anweisung \verb|sA.Name = "Peter";| ergänzt, wird folgender Bytecode und Constant-Pool Eintrag ergänzt:
+Ein schreibender Zugriff auf das Feld wird mit \verb|putfield| realisiert. Wird das Java-Programm um die Anweisung \verb|sA.Name = "Peter"| ergänzt, wird folgender Bytecode und Constant-Pool Eintrag ergänzt:
 \begin{lstlisting}
 aload_0
 ldc           #5
@@ -285,6 +285,8 @@ Dieses Beispiel zeigt auch wie mit einer redundanten Feld Definition umgegangen 
 
 
 \subsection{Zugriff auf Klassen-/Static-Felder}
+Die Funktionsweise für den Zugriff auf Klassen-Felder ist dem Zugriff auf Objekt-Felder sehr ähnlich. Der einzige Unterschied ist dass für einen lesenden Zugriff auf ein ein Klassen-Feld der Opcode \verb|getstatic|, beziehungsweise für einen schreibenden Zugriff \verb|putstatic| verwendet wird. Beide Opcode haben wieder einen Index als Operanden der auf einen Eintrag im Constant-Pool verweist. Im Gegensatz zu \verb|getfield| und \verb|putfield| wird aber keine Objekt-Referenz auf dem Operanden-Stack erwartet, da die Aufrufe unabhängig davon sind. Lediglich die Klasse und das verwendete Feld müssen über die Constant-Pool Einträge identifiziert werden.
+
 
 \section{Typüberprüfung}
 
