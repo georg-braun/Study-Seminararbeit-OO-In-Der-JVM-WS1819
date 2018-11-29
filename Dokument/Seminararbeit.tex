@@ -295,10 +295,11 @@ public static void main() {
 	Mensch hM = new Mensch();
 	hM.Name = "Peter";
 
-	sagDeinenNamen((Student) sA);
+	sagDeinenNamen((Student) hM);
 }
 
-public static void sagDeinenNamen(Student _s){ }
+public static void sagDeinenNamen
+	(Student _s){ ... }
 \end{lstlisting}
 Der daraus generierte Bytecode und Constant-Pool sieht wie folgt aus:
 \begin{lstlisting}
