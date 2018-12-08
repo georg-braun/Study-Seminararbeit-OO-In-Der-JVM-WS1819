@@ -217,34 +217,6 @@ Dieses Beispiel zeigt auch wie mit einer redundanten Feld Definition umgegangen 
 \subsection{Zugriff auf Klassen-/Static-Felder}
 Die Funktionsweise für den Zugriff auf Klassen-Felder ist dem Zugriff auf Objekt-Felder sehr ähnlich. Der Hauptunterschied ist, dass für einen lesenden Zugriff auf ein Klassen-Feld der Opcode \verb|getstatic|, beziehungsweise für einen schreibenden Zugriff \verb|putstatic| verwendet wird. Beide Opcode haben wieder einen Index als Operanden der auf einen Eintrag im Constant-Pool verweist. Im Gegensatz zu \verb|getfield| und \verb|putfield| wird aber keine Objekt-Referenz auf dem Operanden-Stack erwartet, da die Aufrufe unabhängig von einem Objekt sind. Lediglich die Klasse und das verwendete Feld müssen über die Constant-Pool Einträge identifiziert werden.
 
-
-\section{Typüberprüfung}
-Sobald in der Programmierung ein Typecast erfolgt, wird im Bytecode der Opcode \verb|checkcast| ergänzt, der diese Konvertierung überprüft. Diese Prüfung wird anhand der bereits bekannten Mensch-Studenten Klassenbeziehung gezeigt. Dabei wird eine Instanz der Klasse \verb|Mensch| erzeugt und ein Wert für das Feld \verb|Name| gesetzt. Die Methode \verb|sagDeinenNamen| erwartet hingegen ein Objekt des Typs Student als Parameter. Dazu wird eine Typ-Konvertierung in die Klasse Student hinzugefügt. Betrachtet man die Vererbungshierarchie so wird deutlich, dass dies keine gültige Typ-Konvertierung ist und es somit zu einem Laufzeitfehler kommen wird.
-\begin{lstlisting}
-public static void main() {
-	Mensch hM = new Mensch();
-	hM.Name = "Peter";
-
-	sagDeinenNamen((Student) hM);
-}
-
-public static void sagDeinenNamen
-	(Student _s){ ... }
-\end{lstlisting}
-Der daraus generierte Bytecode und Constant-Pool sieht wie folgt aus:
-\begin{lstlisting}
-aload_0
-checkcast     #6
-invokestatic  #7
-
-#6 = Class      #37
-#7 = Methodref  ...
-#37 = Utf8      com/company/Student
-\end{lstlisting}
-Auf dem Operanden-Stack befindet sich die Objekt-Referenz zu der Mensch-Instanz (\verb|aload_0|). Vor dem Aufruf der Methode findet jedoch noch ein Aufruf des Opcodes \verb|checkcast| statt, der als Operand den Ziel-Typ (Student) der gewünschten Konvertierung enthält. Der Opcode prüft ob es sich um eine gültige Konvertierung handelt. Sollte die Typ-Konvertierung nicht erlaubt sein wird eine \verb|ClassCastException| erzeugt und der normale Programmfluss wird beendet. Bei einer Prüfung mit positiven Ergebnis bleibt diese Exception aus und der Programmfluss fährt mit dem Methodenaufruf fort. Zu beachten gilt es dabei, dass der Opcode \verb|checkcast| die Objekt-Referenz auf dem Operanden-Stack nicht entfernt und ein direkter Methodenaufruf somit möglich ist.\cite{Venners.1996}
-
-In vielen Programmiersprachen kann direkt auf die Übereinstimmung eines Typs mit der Anweisung \verb|instanceof| geprüft werden. Die gleiche Anweisung gibt es als Opcode im Bytecode. Dabei wird eine Objekt-Referenz vom Operanden-Stack genommen und gegen den gewünschten Typ geprüft. Das Ergebnis der Prüfung wird durch ein \verb|True| oder \verb|False| Element auf dem Operanden-Stack gekennzeichnet.\cite{Venners.1996}
-
 \bibliographystyle{ieeetr}
 \bibliography{literatur} 
 
