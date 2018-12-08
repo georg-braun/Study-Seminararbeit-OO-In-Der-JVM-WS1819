@@ -251,7 +251,7 @@ Für den Zugriff auf Felder eines Objekts werden die Opcodes \verb|putfield| und
 \begin{lstlisting}
 public String Name;
 \end{lstlisting}
-Somit haben beide Klassen ein Feld mit der Bezeichnung \textit{Name}. Im folgenden wird auf das neue Feld lesend zugegriffen um den Inhalt in einer Variablen zu sichern:
+Somit haben beide Klassen ein Feld mit der Bezeichnung \textit{Name}. Im Folgenden wird auf das neue Feld lesend zugegriffen, um den Inhalt in einer Variablen zu sichern:
 \begin{lstlisting}
 Student sA = new Student();
 var x = sA.Name;
@@ -280,7 +280,7 @@ putfield      #4
 #5 = String             #28
 #28 = Utf8              Peter
 \end{lstlisting}
-Wieder wird die Objekt-Referenz auf den Operanden-Stack gelegt. Mit dem Opcode \verb|ldc| und dem folgenden Index wird ein Wert aus dem Constant-Pool entnommen und auf den Operanden-Stack gelegt. In dem konkreten Beispiel wird der String \textit{Peter} auf dem Stack abgelegt. Somit befinden sich auf dem Operanden-Stack die Objekt-Referenz und der String als Parameter. Diese beiden Elemente werden durch den \verb|putfield| Opcode konsumiert. Die Vorgehensweise für den Feldzugriff ist identisch zum \verb|gefield| Beispiel. 
+Wieder wird die Objekt-Referenz auf den Operanden-Stack gelegt. Mit dem Opcode \verb|ldc| und dem folgenden Index wird ein Wert aus dem Constant-Pool entnommen und auf den Operanden-Stack gelegt. In dem konkreten Beispiel wird der String \textit{Peter} auf dem Stack abgelegt. Somit befinden sich auf dem Operanden-Stack die Objekt-Referenz und der String als Parameter. Diese beiden Elemente werden durch den \verb|putfield| Opcode konsumiert. Die Vorgehensweise für den Feldzugriff ist identisch zum \verb|getfield| Beispiel. 
 
 Dieses Beispiel zeigt auch wie mit einer redundanten Feld Definition umgegangen wird. Sowohl die Mensch-, als auch die Student-Klasse wurden um das gleiche Feld ergänzt. Bei der Verwendung des Feld bei einer Studenten-Instanz wird jedoch nur das Feld der Student-Klasse berücksichtigt. Somit wird deutlich, dass das Feld der vererbenden Klasse überdeckt wird. Zudem wird bei einem Feldzugriff nicht nur der Feldname, sondern auch der Klassenname verwendet (siehe Feldauflösung im Beispiel). Das zeigt, dass es sich nicht um ein doppeltes, sondern um zwei eigenständige Felder handelt. \cite{Venners.1996}
 
