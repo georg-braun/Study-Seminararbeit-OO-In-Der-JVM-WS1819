@@ -1,7 +1,7 @@
 compile_pdf:
   image: aergus/latex
   script:
-    - latexmk -pdf Dokument/Seminararbeit.tex
+    - latexmk -pdf Seminararbeit.tex
   artifacts:
     paths:
       - Seminararbeit.pdf
