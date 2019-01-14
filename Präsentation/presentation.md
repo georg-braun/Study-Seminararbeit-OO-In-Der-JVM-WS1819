@@ -118,7 +118,7 @@ Mensch oneHuman = new Student();
 
 #### invokeinterface
 - Referenz ist ein Inteface
-- Methode muss immer "neu gesucht" werden *(kein fixer Offset*
+- Methode muss immer "neu gesucht" werden *(kein fixer Offset)*
 
 ---
 
