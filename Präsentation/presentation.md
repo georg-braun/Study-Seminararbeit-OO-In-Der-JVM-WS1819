@@ -11,7 +11,7 @@
 
 ---
 
-## Aufbau der .Class-Datei
+## Aufbau der .class-Datei
 
 ![](Grafiken/AufbauClassDatei.png)
 
@@ -32,20 +32,20 @@
 
 ### Heap
 
-- Geteilter Bereich
+- Threads teilen sich Heap
 - Speicher der Objekt-Daten
   - Über Referenz auffindbar
   - Sichern der Objekt-Daten
   - Referenz zur genutzten Klasse
-- Method Area
+- Method Area 
 
 ---
 
 #### Method Area
 
-- Enthält Infos zu Klassen und Interfaces, Runtime-Constant-Pool, Methodentabellen, ...
+- Enthält Infos zu Klassen, Interfaces, Runtime-Constant-Pool, Methodentabellen, ...
 - *__Runtime-Constant-Pool:__* Laufzeitrepräsentation der Constant-Pools (class-Dateien)
-- *__Methoden-Tabelle:__* Aufrufbare Methoden
+- *__Methoden-Tabelle:__* Aufrufbare Methoden der Instanz
 
 ---
 
@@ -77,11 +77,14 @@ Instanz-Methode
 
 ```Java
 invokestatic #3
-
+```
+```
 #3 = Methodref #2.#22
 #22 = NameAndType #8:#9
 ...
 ```
+- Es gibt verschiedene Opcodes für Methodenaufrufe
+- Argumente werden vom Operanden-Stack konsumiert
 
 ---
 
@@ -100,10 +103,12 @@ Mensch oneHuman = new Student();
 
 - Aber: Typ erst zur Laufzeit bekannt  
 - **=>** Verzweigung vom Objekt zur Klasse notwendig 
+- Objekt-Referenz auf Operanden-Stack erwartet
 
 ---
 
 #### Beispiel: Invokevirtual und Vererbung
+Methodentabelle einer ```Student``` Instanz
 ![](Grafiken/UMLHierarchie.png)
 ![](Grafiken/MethodenTabelleAusHierarchie.png)
 
@@ -117,7 +122,7 @@ Mensch oneHuman = new Student();
 ---
 
 #### invokeinterface
-- Referenz ist ein Inteface
+- Referenz ist ein Interface
 - Methode muss immer "neu gesucht" werden *(kein fixer Offset)*
 
 ---
